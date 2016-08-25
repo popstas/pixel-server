@@ -25,30 +25,35 @@ type PixelServer struct {
 var pixelServer PixelServer
 
 func statusHandler(w http.ResponseWriter, r *http.Request) {
-	if(r.Method == "POST"){
-		r.ParseForm()
-
-		value, _ := strconv.Atoi(r.FormValue("value"))
-		message := r.FormValue("message")
-		blink, _ := strconv.Atoi(r.FormValue("blink"))
-		brightness := 100
-
-		switch blink {
-		case 1:
-			value += 100
-		case 2:
-			value += 200
-		}
-
-		command := fmt.Sprintf("%d|%s|%d\n",value, message, brightness)
-		n, err := pixelServer.Serial.Write([]byte(command))
-		if err != nil {
-			log.Fatal(err)
-		}
-		_ = n
-	} else{
+	if(r.Method != "POST") {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
 	}
+	r.ParseForm()
+
+	value, _ := strconv.Atoi(r.FormValue("value"))
+	message := r.FormValue("message")
+	blink, _ := strconv.Atoi(r.FormValue("blink"))
+	brightness := 100
+
+	pixelServer.setStatus(value, message, brightness, blink)
+}
+
+func (ps PixelServer) setStatus (value int, message string, brightness int, blink int) (int, error){
+	switch blink {
+	case 1:
+		value += 100
+	case 2:
+		value += 200
+	}
+
+	command := fmt.Sprintf("%d|%s|%d\n",value, message, brightness)
+	n, err := ps.Serial.Write([]byte(command))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return n, err
 }
 
 func main() {
