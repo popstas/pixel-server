@@ -110,7 +110,7 @@ func (ps PixelServer) statusHandler(w http.ResponseWriter, r *http.Request) {
 	pd.Value, _ = strconv.Atoi(r.FormValue("value"))
 	pd.Message = r.FormValue("message")
 	pd.Blink, _ = strconv.Atoi(r.FormValue("blink"))
-	pd.Brightness = 100
+	pd.Brightness, _ = strconv.Atoi(r.FormValue("brightness"))
 
 	pixelServer.setStatus(pd)
 }
@@ -213,11 +213,6 @@ func main() {
 	pixelServer.setStatus(PixelData{ 100, fmt.Sprintf("server started\\%s", hostPort), 1, 20 })
 	time.Sleep(2000 * time.Millisecond)
 	pixelServer.setStatus(PixelData{ -1, "", 0, 100 })
-
-	pixelServer.setStatus(PixelData{ 50, "", 0, 100 })
-	time.Sleep(500 * time.Millisecond)
-	pixelServer.setStatus(PixelData{ 100, "", 0, 100 })
-	time.Sleep(500 * time.Millisecond)
 
 	http.HandleFunc("/status", pixelServer.statusHandler)
 	http.HandleFunc("/kapacitor", pixelServer.kapacitorHandler)
