@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"strconv"
 	"encoding/json"
+	"math"
 )
 
 const (
@@ -19,8 +20,8 @@ const (
 )
 
 type PixelServer struct {
-
 	Serial *serial.Port
+	LastPixelData PixelData
 }
 
 type PixelData struct {
@@ -132,7 +133,7 @@ func (ps PixelServer) kapacitorHandler(w http.ResponseWriter, r *http.Request) {
 	switch ad.Level {
 	case OKAlert:
 		pd.Value = 100
-		pd.Blink = 1
+		//pd.Blink = 1
 	case InfoAlert:
 		pd.Value = -1
 	case WarnAlert:
@@ -143,15 +144,14 @@ func (ps PixelServer) kapacitorHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := ad.Data.Series[0]
-	fmt.Printf("%v\n", data)
-	fmt.Printf("%v\n", data.Values)
-	fmt.Printf("%v\n", data.Values[0][1])
 	pd.Message = fmt.Sprintf("%s\\%s: %v", data.Tags.Host, data.Name, data.Values[0][1]) // data.Values[1]
 
 	pixelServer.setStatus(pd)
 }
 
-func (ps PixelServer) setStatus (pd PixelData) (int, error){
+func (ps *PixelServer) setStatus (pd PixelData){
+	animationDuration := 1000 // ms
+
 	switch pd.Blink {
 	case 1:
 		pd.Value += 100
@@ -159,12 +159,42 @@ func (ps PixelServer) setStatus (pd PixelData) (int, error){
 		pd.Value += 200
 	}
 
+	delta := pd.Value - ps.LastPixelData.Value
+	stepTime := float64(animationDuration) / math.Abs(float64(delta))
+
+	var step int
+	if delta > 0{
+		step = 1
+	} else {
+		step = -1
+	}
+
+	if(pd.Blink == 0 && ps.LastPixelData.Value > 0 && pd.Value > 0) {
+		for i := ps.LastPixelData.Value; i != pd.Value; i += step {
+			ps.sendSerial(PixelData{i, pd.Message, pd.Blink, pd.Brightness })
+			time.Sleep(time.Millisecond * time.Duration(stepTime))
+		}
+	}
+
+	ps.sendSerial(pd)
+
+	// if success value, turn off led
+	if pd.Value == 100{
+		time.Sleep(time.Millisecond * 5000)
+		ps.sendSerial(PixelData{ -1, "", 0, 100 })
+	}
+
+	time.Sleep(1000 * time.Millisecond)
+	ps.LastPixelData = pd
+}
+
+func (ps PixelServer) sendSerial (pd PixelData) (int, error){
 	command := fmt.Sprintf("%d|%s|%d\n",pd.Value, pd.Message, pd.Brightness)
+	//fmt.Println(command)
 	n, err := ps.Serial.Write([]byte(command))
 	if err != nil {
 		log.Fatalf("Could not write to port, %s", err)
 	}
-
 	return n, err
 }
 
@@ -180,15 +210,14 @@ func main() {
 	// port not opened before 1500 milliseconds pause
 	time.Sleep(1500 * time.Millisecond)
 
-	initCommand := fmt.Sprintf("200|server started\\%s|50\n", hostPort)
-	n, err := s.Write([]byte(initCommand))
-	if err != nil {
-		log.Fatal(err)
-	}
-	_ = n
-
+	pixelServer.setStatus(PixelData{ 100, fmt.Sprintf("server started\\%s", hostPort), 1, 20 })
 	time.Sleep(2000 * time.Millisecond)
-	s.Write([]byte("-1\n"))
+	pixelServer.setStatus(PixelData{ -1, "", 0, 100 })
+
+	pixelServer.setStatus(PixelData{ 50, "", 0, 100 })
+	time.Sleep(500 * time.Millisecond)
+	pixelServer.setStatus(PixelData{ 100, "", 0, 100 })
+	time.Sleep(500 * time.Millisecond)
 
 	http.HandleFunc("/status", pixelServer.statusHandler)
 	http.HandleFunc("/kapacitor", pixelServer.kapacitorHandler)
