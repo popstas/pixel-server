@@ -10,14 +10,13 @@ import (
 	"strconv"
 	"encoding/json"
 	"math"
+	"flag"
 )
 
-const (
-	SerialPort  = "COM3"
-	SerialSpeed = 9600
-	WebHost     = ""
-	WebPort     = 8080
-)
+var SerialPort string
+var SerialSpeed int
+var WebHost string
+var WebPort int
 
 type PixelServer struct {
 	Serial *serial.Port
@@ -198,6 +197,14 @@ func (ps PixelServer) sendSerial (pd PixelData) (int, error){
 		log.Fatalf("Could not write to port, %s", err)
 	}
 	return n, err
+}
+
+func init() {
+	flag.StringVar(&SerialPort, "serial-port", "COM3", "serial port name or path")
+	flag.IntVar(&SerialSpeed, "serial-speed",  9600, "serial port speed")
+	flag.StringVar(&WebHost, "web-host",  "", "hostname for bind server")
+	flag.IntVar(&WebPort, "web-port",  8080, "port for bind server")
+	flag.Parse()
 }
 
 func main() {

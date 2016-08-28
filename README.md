@@ -1,7 +1,7 @@
 Server for send signals to [arduino pixel_meter](https://github.com/popstas/arduino-pixel-meter).
 
 # Usage
-- Start server, it will listen at *:8080
+- Start server, it will default listen at *:8080
 - Send POST request to `/status` like this:
 ```
 http -f POST http://localhost:8080/status value=50 message='first string\\second string' blink=2
@@ -11,6 +11,13 @@ http -f POST http://localhost:8080/status value=50 message='first string\\second
 data
     |alert()
         .post('http://localhost:8080/kapacitor')
+```
+
+# Configure server
+
+### Command-line parameters
+```
+pixel-server --web-host="" --web-port=8080 --serial-port=COM3 --serial-speed=9600
 ```
 
 ### Request parameters for /status
