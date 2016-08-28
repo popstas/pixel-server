@@ -214,8 +214,6 @@ func init() {
 	flag.StringVar(&pixelServer.Config.WebHost, "web-host",  "", "hostname for bind server")
 	flag.IntVar(&pixelServer.Config.WebPort, "web-port",  8080, "port for bind server")
 	flag.Parse()
-
-	log.Printf("%v", pixelServer.Config)
 }
 
 func setIntEnvvar(v *int, envName string){
