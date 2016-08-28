@@ -171,11 +171,13 @@ func (ps *PixelServer) setStatus (pd PixelData){
 
 	if(pd.Blink == 0 && ps.LastPixelData.Value > 0 && pd.Value > 0) {
 		for i := ps.LastPixelData.Value; i != pd.Value; i += step {
-			ps.sendSerial(PixelData{i, pd.Message, pd.Blink, pd.Brightness })
+			ps.sendSerial(PixelData{i, "", 0, pd.Brightness })
 			time.Sleep(time.Millisecond * time.Duration(stepTime))
 		}
 	}
 
+	time.Sleep(100 * time.Duration(stepTime))
+	log.Printf("setStatus: %v\n", pd)
 	ps.sendSerial(pd)
 
 	// if success value, turn off led
