@@ -11,14 +11,18 @@ import (
 	"encoding/json"
 	"math"
 	"flag"
+	"os"
 )
 
-var SerialPort string
-var SerialSpeed int
-var WebHost string
-var WebPort int
+type Config struct {
+	SerialPort string
+	SerialSpeed int
+	WebHost string
+	WebPort int
+}
 
 type PixelServer struct {
+	Config Config
 	Serial *serial.Port
 	LastPixelData PixelData
 }
@@ -200,21 +204,46 @@ func (ps PixelServer) sendSerial (pd PixelData) (int, error){
 }
 
 func init() {
-	flag.StringVar(&SerialPort, "serial-port", "COM3", "serial port name or path")
-	flag.IntVar(&SerialSpeed, "serial-speed",  9600, "serial port speed")
-	flag.StringVar(&WebHost, "web-host",  "", "hostname for bind server")
-	flag.IntVar(&WebPort, "web-port",  8080, "port for bind server")
+	setStringEnvvar(&pixelServer.Config.SerialPort, "PIXEL_SERVER_SERIAL_PORT")
+	setIntEnvvar(&pixelServer.Config.SerialSpeed, "PIXEL_SERVER_SERIAL_SPEED")
+	setStringEnvvar(&pixelServer.Config.WebHost, "PIXEL_SERVER_WEB_HOST")
+	setIntEnvvar(&pixelServer.Config.WebPort, "PIXEL_SERVER_WEB_PORT")
+
+	flag.StringVar(&pixelServer.Config.SerialPort, "serial-port", "COM3", "serial port name or path")
+	flag.IntVar(&pixelServer.Config.SerialSpeed, "serial-speed",  9600, "serial port speed")
+	flag.StringVar(&pixelServer.Config.WebHost, "web-host",  "", "hostname for bind server")
+	flag.IntVar(&pixelServer.Config.WebPort, "web-port",  8080, "port for bind server")
 	flag.Parse()
+
+	log.Printf("%v", pixelServer.Config)
+}
+
+func setIntEnvvar(v *int, envName string){
+	envValue := os.Getenv(envName)
+	if envValue != ""{
+		if envIntValue, err := strconv.Atoi(envValue); err != nil{
+			log.Fatalf("Cannot convert value of envvar %s to int: %s", envName, envValue)
+		} else {
+			*v = envIntValue
+		}
+	}
+}
+
+func setStringEnvvar(v *string, envName string){
+	envValue := os.Getenv(envName)
+	if envValue != ""{
+		*v = envValue
+	}
 }
 
 func main() {
-	c := &serial.Config{Name: SerialPort, Baud: SerialSpeed}
+	c := &serial.Config{Name: pixelServer.Config.SerialPort, Baud: pixelServer.Config.SerialSpeed}
 	s, err := serial.OpenPort(c)
 	if err != nil {
 		log.Fatalf("Could not open port %s, %s", c.Name, err)
 	}
 	pixelServer.Serial = s
-	hostPort := fmt.Sprintf("%s:%d", WebHost, WebPort)
+	hostPort := fmt.Sprintf("%s:%d", pixelServer.Config.WebHost, pixelServer.Config.WebPort)
 
 	// port not opened before 1500 milliseconds pause
 	time.Sleep(1500 * time.Millisecond)

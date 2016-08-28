@@ -17,8 +17,23 @@ data
 
 ### Command-line parameters
 ```
-pixel-server --web-host="" --web-port=8080 --serial-port=COM3 --serial-speed=9600
+pixel-server \
+--web-host="" \
+--web-port=8080 \
+--serial-port=COM3 \
+--serial-speed=9600
 ```
+
+### Environment variables
+```
+PIXEL_SERVER_SERIAL_PORT=COM3 \
+PIXEL_SERVER_SERIAL_SPEED=9600 \
+PIXEL_SERVER_WEB_HOST= \
+PIXEL_SERVER_WEB_PORT=8080 \
+pixel-server
+```
+
+Command-line parameters has priority over environment variables.
 
 ### Request parameters for /status
 - `value` - value of signal, required,  
