@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/popstas/pixel-server.svg?branch=travis-release)](https://travis-ci.org/popstas/pixel-server)
+
 Server for send signals to [arduino pixel_meter](https://github.com/popstas/arduino-pixel-meter).
 
 # Usage
