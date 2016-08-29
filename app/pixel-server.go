@@ -10,11 +10,13 @@ import (
 	"math"
 
 	"github.com/tarm/serial"
+	"sync"
 )
 
 type PixelServer struct {
 	Serial        *serial.Port
 	LastPixelData PixelData
+	Mutex         *sync.Mutex
 }
 
 type PixelData struct {
@@ -32,13 +34,17 @@ func (ps PixelServer) statusHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	var pd PixelData
+	var err error
 
 	pd.Value, _ = strconv.Atoi(r.FormValue("value"))
 	pd.Message = r.FormValue("message")
 	pd.Blink, _ = strconv.Atoi(r.FormValue("blink"))
-	pd.Brightness, _ = strconv.Atoi(r.FormValue("brightness"))
+	pd.Brightness, err = strconv.Atoi(r.FormValue("brightness"))
+	if err != nil{
+		pd.Brightness = 100
+	}
 
-	pixelServer.setStatus(pd)
+	go pixelServer.setStatus(pd)
 }
 
 func (ps PixelServer) kapacitorHandler(w http.ResponseWriter, r *http.Request) {
@@ -66,17 +72,18 @@ func (ps PixelServer) kapacitorHandler(w http.ResponseWriter, r *http.Request) {
 		pd.Value = 50
 	case CritAlert:
 		pd.Value = 1
-		pd.Blink = 2
+		//pd.Blink = 2
 	}
 
 	data := ad.Data.Series[0]
 	pd.Message = fmt.Sprintf("%s\\%s: %v", data.Tags.Host, data.Name, data.Values[0][1]) // data.Values[1]
 
-	pixelServer.setStatus(pd)
+	go pixelServer.setStatus(pd)
 }
 
 func (ps *PixelServer) setStatus (pd PixelData){
-	animationDuration := 1000 // ms
+	ps.Mutex.Lock()
+	animationDuration := 3000 // ms
 
 	switch pd.Blink {
 	case 1:
@@ -95,10 +102,24 @@ func (ps *PixelServer) setStatus (pd PixelData){
 		step = -1
 	}
 
-	if(pd.Blink == 0 && ps.LastPixelData.Value > 0 && pd.Value > 0) {
-		for i := ps.LastPixelData.Value; i != pd.Value; i += step {
-			ps.sendSerial(PixelData{i, "", 0, pd.Brightness })
-			time.Sleep(time.Millisecond * time.Duration(stepTime))
+	if delta > 0{
+		// smooth switch color
+		if(pd.Blink == 0 && ps.LastPixelData.Value > 0 && pd.Value > 0) {
+			for i := ps.LastPixelData.Value; i != pd.Value; i += step {
+				ps.sendSerial(PixelData{i, "", 0, pd.Brightness })
+				time.Sleep(time.Millisecond * time.Duration(stepTime))
+			}
+		}
+	} else {
+		// sharp switch color
+		if(pd.Blink == 0 && ps.LastPixelData.Value > 0 && pd.Value > 0) {
+			for i := 0; i < 3; i++ {
+				ps.sendSerial(PixelData{pd.Value, "", 0, pd.Brightness })
+				time.Sleep(time.Millisecond * 250)
+				ps.sendSerial(PixelData{ps.LastPixelData.Value, "", 0, pd.Brightness })
+				time.Sleep(time.Millisecond * 250)
+			}
+			ps.sendSerial(PixelData{pd.Value, "", 0, pd.Brightness })
 		}
 	}
 
@@ -106,19 +127,22 @@ func (ps *PixelServer) setStatus (pd PixelData){
 	log.Printf("setStatus: %v\n", pd)
 	ps.sendSerial(pd)
 
+	ps.LastPixelData = pd
+
 	// if success value, turn off led
 	if pd.Value == 100{
 		time.Sleep(time.Millisecond * 5000)
 		ps.sendSerial(PixelData{ -1, "", 0, 100 })
+		ps.LastPixelData = PixelData{ -1, "", 0, 100 }
 	}
 
 	time.Sleep(1000 * time.Millisecond)
-	ps.LastPixelData = pd
+	ps.Mutex.Unlock()
 }
 
 func (ps PixelServer) sendSerial (pd PixelData) (int, error){
 	command := fmt.Sprintf("%d|%s|%d\n",pd.Value, pd.Message, pd.Brightness)
-	//fmt.Println(command)
+	//log.Println(command)
 	n, err := ps.Serial.Write([]byte(command))
 	if err != nil {
 		log.Fatalf("Could not write to port, %s", err)

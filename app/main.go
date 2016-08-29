@@ -9,6 +9,7 @@ import (
 
 	"github.com/jessevdk/go-flags"
 	"github.com/tarm/serial"
+	"sync"
 )
 
 var pixelServer PixelServer
@@ -32,6 +33,7 @@ func main() {
 		log.Fatalf("Could not open port %s, %s", c.Name, err)
 	}
 	pixelServer.Serial = s
+	pixelServer.Mutex = &sync.Mutex{}
 	hostPort := fmt.Sprintf("%s:%d", opts.WebHost, opts.WebPort)
 
 	// port not opened before 1500 milliseconds pause
