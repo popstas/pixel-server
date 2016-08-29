@@ -10,11 +10,13 @@ import (
 	"math"
 
 	"github.com/tarm/serial"
+	"sync"
 )
 
 type PixelServer struct {
 	Serial        *serial.Port
 	LastPixelData PixelData
+	Mutex         *sync.Mutex
 }
 
 type PixelData struct {
@@ -32,13 +34,17 @@ func (ps PixelServer) statusHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	var pd PixelData
+	var err error
 
 	pd.Value, _ = strconv.Atoi(r.FormValue("value"))
 	pd.Message = r.FormValue("message")
 	pd.Blink, _ = strconv.Atoi(r.FormValue("blink"))
-	pd.Brightness, _ = strconv.Atoi(r.FormValue("brightness"))
+	pd.Brightness, err = strconv.Atoi(r.FormValue("brightness"))
+	if err != nil{
+		pd.Brightness = 100
+	}
 
-	pixelServer.setStatus(pd)
+	go pixelServer.setStatus(pd)
 }
 
 func (ps PixelServer) kapacitorHandler(w http.ResponseWriter, r *http.Request) {
@@ -72,10 +78,11 @@ func (ps PixelServer) kapacitorHandler(w http.ResponseWriter, r *http.Request) {
 	data := ad.Data.Series[0]
 	pd.Message = fmt.Sprintf("%s\\%s: %v", data.Tags.Host, data.Name, data.Values[0][1]) // data.Values[1]
 
-	pixelServer.setStatus(pd)
+	go pixelServer.setStatus(pd)
 }
 
 func (ps *PixelServer) setStatus (pd PixelData){
+	ps.Mutex.Lock()
 	animationDuration := 3000 // ms
 
 	switch pd.Blink {
@@ -125,16 +132,17 @@ func (ps *PixelServer) setStatus (pd PixelData){
 	// if success value, turn off led
 	if pd.Value == 100{
 		time.Sleep(time.Millisecond * 5000)
-		pixelServer.setStatus(PixelData{ -1, "", 0, 100 })
-		//ps.sendSerial(PixelData{ -1, "", 0, 100 })
+		ps.sendSerial(PixelData{ -1, "", 0, 100 })
+		ps.LastPixelData = PixelData{ -1, "", 0, 100 }
 	}
 
 	time.Sleep(1000 * time.Millisecond)
+	ps.Mutex.Unlock()
 }
 
 func (ps PixelServer) sendSerial (pd PixelData) (int, error){
 	command := fmt.Sprintf("%d|%s|%d\n",pd.Value, pd.Message, pd.Brightness)
-	//fmt.Println(command)
+	//log.Println(command)
 	n, err := ps.Serial.Write([]byte(command))
 	if err != nil {
 		log.Fatalf("Could not write to port, %s", err)

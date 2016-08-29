@@ -47,3 +47,7 @@ Command-line parameters has priority over environment variables.
    1 for blink 3 times and back to previous state,  
    2 for persistent blinking
 - `brightness` - led brightness, 0 to 100, default 100
+
+## Behaviour
+If status changes from red to green, will be used smooth color change.
+If status changes from green to red, color will changed with blinking with last color.
