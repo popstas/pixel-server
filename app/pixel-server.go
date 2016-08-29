@@ -13,7 +13,6 @@ import (
 )
 
 type PixelServer struct {
-	Config        Config
 	Serial        *serial.Port
 	LastPixelData PixelData
 }

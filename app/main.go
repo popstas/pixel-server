@@ -5,34 +5,34 @@ import (
 	"net/http"
 	"time"
 	"fmt"
-	"flag"
+	"os"
 
+	"github.com/jessevdk/go-flags"
 	"github.com/tarm/serial"
 )
 
 var pixelServer PixelServer
 
-func init() {
-	setStringEnvvar(&pixelServer.Config.SerialPort, "PIXEL_SERVER_SERIAL_PORT")
-	setIntEnvvar(&pixelServer.Config.SerialSpeed, "PIXEL_SERVER_SERIAL_SPEED")
-	setStringEnvvar(&pixelServer.Config.WebHost, "PIXEL_SERVER_WEB_HOST")
-	setIntEnvvar(&pixelServer.Config.WebPort, "PIXEL_SERVER_WEB_PORT")
-
-	flag.StringVar(&pixelServer.Config.SerialPort, "serial-port", "COM3", "serial port name or path")
-	flag.IntVar(&pixelServer.Config.SerialSpeed, "serial-speed",  9600, "serial port speed")
-	flag.StringVar(&pixelServer.Config.WebHost, "web-host",  "", "hostname for bind server")
-	flag.IntVar(&pixelServer.Config.WebPort, "web-port",  8080, "port for bind server")
-	flag.Parse()
+var opts struct {
+	SerialPort  string `long:"serial-port" env:"PIXEL_SERVER_SERIAL_PORT" description:"serial port name or path" default:"COM3"`
+	SerialSpeed int    `long:"serial-speed" env:"PIXEL_SERVER_SERIAL_SPEED" description:"serial port speed" default:"9600"`
+	WebHost     string `long:"web-host" env:"PIXEL_SERVER_WEB_HOST" description:"hostname for bind server" default:""`
+	WebPort     int    `long:"web-port" env:"PIXEL_SERVER_WEB_PORT" description:"port for bind server" default:"8080"`
 }
 
 func main() {
-	c := &serial.Config{Name: pixelServer.Config.SerialPort, Baud: pixelServer.Config.SerialSpeed}
+
+	if _, err := flags.Parse(&opts); err != nil {
+		os.Exit(1)
+	}
+
+	c := &serial.Config{Name: opts.SerialPort, Baud: opts.SerialSpeed}
 	s, err := serial.OpenPort(c)
 	if err != nil {
 		log.Fatalf("Could not open port %s, %s", c.Name, err)
 	}
 	pixelServer.Serial = s
-	hostPort := fmt.Sprintf("%s:%d", pixelServer.Config.WebHost, pixelServer.Config.WebPort)
+	hostPort := fmt.Sprintf("%s:%d", opts.WebHost, opts.WebPort)
 
 	// port not opened before 1500 milliseconds pause
 	time.Sleep(1500 * time.Millisecond)
