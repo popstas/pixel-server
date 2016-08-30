@@ -1,18 +1,13 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"time"
 	"fmt"
 	"os"
 
 	"github.com/jessevdk/go-flags"
-	"github.com/tarm/serial"
-	"sync"
+	"github.com/popstas/pixel-server/app/rest"
+	"github.com/popstas/pixel-server/app/pixel"
 )
-
-var pixelServer PixelServer
 
 var opts struct {
 	SerialPort  string `long:"serial-port" env:"PIXEL_SERVER_SERIAL_PORT" description:"serial port name or path" default:"COM3"`
@@ -27,23 +22,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	c := &serial.Config{Name: opts.SerialPort, Baud: opts.SerialSpeed}
-	s, err := serial.OpenPort(c)
-	if err != nil {
-		log.Fatalf("Could not open port %s, %s", c.Name, err)
+	p := pixel.Pixel{PortName: opts.SerialPort, PortSpeed: opts.SerialSpeed}
+	p.Connect()
+
+	server := rest.Server{
+		HostPort: fmt.Sprintf("%s:%d", opts.WebHost, opts.WebPort),
+		Pixel: p,
 	}
-	pixelServer.Serial = s
-	pixelServer.Mutex = &sync.Mutex{}
-	hostPort := fmt.Sprintf("%s:%d", opts.WebHost, opts.WebPort)
-
-	// port not opened before 1500 milliseconds pause
-	time.Sleep(1500 * time.Millisecond)
-
-	pixelServer.setStatus(PixelData{ 100, fmt.Sprintf("server started\\%s", hostPort), 1, 20 })
-	time.Sleep(2000 * time.Millisecond)
-	pixelServer.setStatus(PixelData{ -1, "", 0, 100 })
-
-	http.HandleFunc("/status", pixelServer.statusHandler)
-	http.HandleFunc("/kapacitor", pixelServer.kapacitorHandler)
-	http.ListenAndServe(hostPort, nil)
+	server.Run()
 }
