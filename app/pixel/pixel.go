@@ -11,11 +11,11 @@ import (
 )
 
 type Pixel struct{
+	sync.Mutex
 	PortName      string
 	PortSpeed     int
 	lastPixelData PixelData
 	serial        *serial.Port
-	mutex         sync.Mutex
 }
 
 type PixelData struct {
@@ -26,7 +26,6 @@ type PixelData struct {
 }
 
 func (p *Pixel) Connect(){
-	p.mutex = sync.Mutex{}
 	p.lastPixelData = PixelData{ -1, "", 0, 100 }
 
 	c := &serial.Config{Name: p.PortName, Baud: p.PortSpeed}
@@ -45,7 +44,7 @@ func (p Pixel) GetStatus() PixelData{
 }
 
 func (p *Pixel) SetStatus(pd PixelData){
-	p.mutex.Lock()
+	p.Lock()
 	animationDuration := 3000 // ms
 
 	switch pd.Blink {
@@ -101,7 +100,7 @@ func (p *Pixel) SetStatus(pd PixelData){
 	}
 
 	time.Sleep(1000 * time.Millisecond)
-	p.mutex.Unlock()
+	p.Unlock()
 }
 
 func (p Pixel) sendSerial (pd PixelData) (int, error){
