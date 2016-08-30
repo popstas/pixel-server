@@ -3,11 +3,15 @@
 FEATURES:
 
 IMPROVEMENTS:
+
+BUG FIXES:
+
+## v0.2 (31.08.2016)
+
+IMPROVEMENTS:
   * code decoupled to packages
   * server rewrited from net/http to gin-gonic/gin
   * add release binaries for windows and linux
-
-BUG FIXES:
 
 ## v0.1 (30.08.2016)
 
