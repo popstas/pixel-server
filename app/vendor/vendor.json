@@ -3,30 +3,38 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "5rPfda8jFccr3A6heL+JAmi9K9g=",
-			"origin": "github.com/stretchr/testify/vendor/github.com/davecgh/go-spew/spew",
-			"path": "github.com/davecgh/go-spew/spew",
-			"revision": "d77da356e56a7428ad25149ca77381849a6a5232",
-			"revisionTime": "2016-06-15T09:26:46Z"
-		},
-		{
 			"checksumSHA1": "+opeUAsvaj+r4u8wzquo7jkeW5g=",
 			"path": "github.com/jessevdk/go-flags",
 			"revision": "a8cab0163d48558ffd77076c9c99388529766f63",
 			"revisionTime": "2016-08-27T11:23:33Z"
 		},
 		{
-			"checksumSHA1": "zKKp5SZ3d3ycKe4EKMNT0BqAWBw=",
-			"origin": "github.com/stretchr/testify/vendor/github.com/pmezard/go-difflib/difflib",
-			"path": "github.com/pmezard/go-difflib/difflib",
-			"revision": "d77da356e56a7428ad25149ca77381849a6a5232",
-			"revisionTime": "2016-06-15T09:26:46Z"
+			"path": "github.com/popstas/pixel-server/ap",
+			"revision": ""
 		},
 		{
-			"checksumSHA1": "iydUphwYqZRq3WhstEdGsbvBAKs=",
-			"path": "github.com/stretchr/testify/assert",
-			"revision": "d77da356e56a7428ad25149ca77381849a6a5232",
-			"revisionTime": "2016-06-15T09:26:46Z"
+			"checksumSHA1": "ZGTDQRZxwxhEV09+ozm9Jsbryc0=",
+			"path": "github.com/popstas/pixel-server/app",
+			"revision": "af3cd05a0c935cdde24a3dc7da469fa3a071ebe2",
+			"revisionTime": "2016-08-30T21:13:01Z"
+		},
+		{
+			"checksumSHA1": "T9APKpnEHmApqNFLwd1wC9I+Z2g=",
+			"path": "github.com/popstas/pixel-server/app/kapacitor",
+			"revision": "af3cd05a0c935cdde24a3dc7da469fa3a071ebe2",
+			"revisionTime": "2016-08-30T21:13:01Z"
+		},
+		{
+			"checksumSHA1": "GdxwIFxyjmMXOkAxqQvOUXoa+FI=",
+			"path": "github.com/popstas/pixel-server/app/pixel",
+			"revision": "af3cd05a0c935cdde24a3dc7da469fa3a071ebe2",
+			"revisionTime": "2016-08-30T21:13:01Z"
+		},
+		{
+			"checksumSHA1": "3A97+/0kZNII+Nwq6VsS3dsMmlQ=",
+			"path": "github.com/popstas/pixel-server/app/rest",
+			"revision": "af3cd05a0c935cdde24a3dc7da469fa3a071ebe2",
+			"revisionTime": "2016-08-30T21:13:01Z"
 		},
 		{
 			"checksumSHA1": "He+iIBiVfy0WLVtjCRI0ClsSRAQ=",
