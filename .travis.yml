@@ -10,4 +10,4 @@ script:
   - go test -v ./...
 after_success:
   - gox -output "dist/{{.OS}}_{{.Arch}}_{{.Dir}}" -arch="amd64" -os="windows linux darwin" github.com/popstas/pixel-server/app
-  - ghr --username popstas --token $GITHUB_TOKEN --replace --prerelease --debug pre-release dist/
+  - ghr --username popstas --token $GITHUB_TOKEN --replace --delete --prerelease --debug latest dist/
