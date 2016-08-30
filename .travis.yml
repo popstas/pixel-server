@@ -10,4 +10,8 @@ script:
   - go test -v $(go list -e ./... | grep -v vendor)
 after_success:
   - gox -output "dist/{{.OS}}_{{.Arch}}_{{.Dir}}" -arch="amd64" -os="windows linux darwin" github.com/popstas/pixel-server/app
-  - ghr --username popstas --token $GITHUB_TOKEN --replace --prerelease --debug latest dist/
+deploy:
+  provider: script
+  script: ghr --username popstas --token $GITHUB_TOKEN --replace --debug $(git tag -l --contains HEAD) dist/
+  on:
+    tags: true
