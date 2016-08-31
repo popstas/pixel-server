@@ -96,7 +96,6 @@ func (p *Pixel) SetStatus(pd PixelData){
 		time.Sleep(time.Millisecond * 5000)
 		p.sendSerial(PixelData{ -1, "", 0, 100 })
 		p.lastPixelData = PixelData{ -1, "", 0, 100 }
-		log.Printf("lastPixelData: %v", p.lastPixelData)
 	}
 
 	time.Sleep(1000 * time.Millisecond)
