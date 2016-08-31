@@ -6,6 +6,11 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+## v0.2.1 (31.08.2016)
+
+BUG FIXES:
+  * fixed broken /kapacitor handler
+
 ## v0.2 (31.08.2016)
 
 IMPROVEMENTS:
