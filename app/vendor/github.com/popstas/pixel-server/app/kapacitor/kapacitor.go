@@ -1,8 +1,9 @@
 package kapacitor
 
 import (
-	"time"
+	//"time"
 	"fmt"
+	"time"
 )
 
 // from https://github.com/influxdata/kapacitor/blob/master/alert.go#L87

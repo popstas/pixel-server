@@ -16,12 +16,18 @@ type Server struct {
 	Pixel    pixel.Pixel
 }
 
-func (s Server) Run() {
-	gin.SetMode(gin.ReleaseMode)
+func (s Server) GetEngine() *gin.Engine {
 	router := gin.Default()
 
 	router.POST("/status", s.statusHandler)
 	router.POST("/kapacitor", s.kapacitorHandler)
+
+	return router
+}
+
+func (s Server) Run() {
+	gin.SetMode(gin.ReleaseMode)
+	router := s.GetEngine()
 
 	s.Pixel.SetStatus(pixel.PixelData{ 100, fmt.Sprintf("server started\\%s", s.HostPort), 1, 20 })
 	time.Sleep(2000 * time.Millisecond)
@@ -47,9 +53,9 @@ func (s *Server) statusHandler(c *gin.Context) {
 
 func (s Server) kapacitorHandler(c *gin.Context) {
 	ad := kapacitor.KapacitorAlertData{}
-	err := c.BindJSON(ad)
+	err := c.BindJSON(&ad)
 	if err != nil {
-		log.Fatalf("Could not decode kapacitor AlertData, %s", err)
+		log.Fatalf("Could not decode KapacitorAlertData, %s", err)
 	}
 
 	var pd pixel.PixelData
