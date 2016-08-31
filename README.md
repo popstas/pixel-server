@@ -2,6 +2,8 @@
 
 Server for send signals to [arduino pixel_meter](https://github.com/popstas/arduino-pixel-meter).
 
+![pixel](img/pixel.jpg)
+
 # Usage
 - Start server, it will default listen at *:8080
 - Send POST request to `/status` like this:
