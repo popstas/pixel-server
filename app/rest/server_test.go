@@ -30,10 +30,6 @@ func TestKapacitor(t *testing.T) {
 	r := s.GetEngine()
 	//httptest.NewServer(e)
 
-	// TODO: remove cwd after first commit
-	cwd, _ := os.Getwd()
-	log.Printf("current directory: %v", cwd)
-
 	response = sendKapacitorRequestFromFile("fixtures/kapacitor_warning.json", r)
 	log.Printf("Response: %v", response)
 
