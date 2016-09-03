@@ -2,16 +2,8 @@ package pixel
 
 import (
 	"testing"
-	"log"
 	"github.com/stretchr/testify/assert"
 )
-
-type NullWriter struct {}
-
-func (w NullWriter) Write (b []byte) (int, error){
-	log.Printf("Write bytes: %v", b)
-	return 0, nil
-}
 
 func assertCommandCountAfterSetState(t *testing.T, p *SerialPixel, pd PixelData, expected int){
 	cmds := p.BuildSetStateCommands(pd)

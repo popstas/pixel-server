@@ -1,0 +1,28 @@
+{
+  "id": "server server.domain, task usage_user_long",
+  "message": "server server.domain, task usage_user_long is WARNING: usage_user 34.3 for 1h, at 2016-08-25 15:09:20 +0000 UTC",
+  "details": "server server.domain, task usage_user_long is WARNING: usage_user 34.3 for 1h, at 2016-08-25 15:09:20 \u0026#43;0000 UTC",
+  "time": "2016-08-25T15:09:20Z",
+  "duration": 0,
+  "level": "WARNING",
+  "data": {
+    "series": [
+      {
+        "name": "cpu",
+        "tags": {
+          "host": "server.domain"
+        },
+        "columns": [
+          "time",
+          "field_mean"
+        ],
+        "values": [
+          [
+            "2016-08-25T15:09:20Z",
+            34.29054140378522
+          ]
+        ]
+      }
+    ]
+  }
+}

@@ -38,6 +38,16 @@ type StateCommand struct {
 	PauseAfter  int
 }
 
+type NullWriter struct {
+	LastSerialMessage []byte
+}
+
+func (w NullWriter) Write (b []byte) (int, error){
+	w.LastSerialMessage = b
+	log.Printf("Write bytes: %s", b)
+	return 0, nil
+}
+
 func (p *SerialPixel) Connect(){
 	p.lastPixelData = PixelData{ -1, "", 0, 100 }
 
