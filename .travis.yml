@@ -1,6 +1,7 @@
 language: go
 go:
   - 1.7
+  - tip
 env:
   - "PATH=/home/travis/gopath/bin:$PATH"
 before_install:
@@ -23,3 +24,6 @@ deploy:
   script: ghr --username popstas --token $GITHUB_TOKEN --replace --debug $(git tag -l --contains HEAD) dist/
   on:
     tags: true
+matrix:
+  allow_failures:
+- go: tip
