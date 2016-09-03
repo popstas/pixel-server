@@ -22,7 +22,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	p := pixel.Pixel{PortName: opts.SerialPort, PortSpeed: opts.SerialSpeed}
+	p := pixel.SerialPixel{PortName: opts.SerialPort, PortSpeed: opts.SerialSpeed}
 	p.Connect()
 
 	server := rest.Server{
