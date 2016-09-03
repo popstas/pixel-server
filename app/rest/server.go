@@ -25,7 +25,7 @@ func (s Server) GetEngine() *gin.Engine {
 	return router
 }
 
-func (s Server) Run() {
+func (s *Server) Run() {
 	gin.SetMode(gin.ReleaseMode)
 	router := s.GetEngine()
 
@@ -51,7 +51,7 @@ func (s *Server) statusHandler(c *gin.Context) {
 	go s.Pixel.SetState(pd)
 }
 
-func (s Server) kapacitorHandler(c *gin.Context) {
+func (s *Server) kapacitorHandler(c *gin.Context) {
 	ad := kapacitor.KapacitorAlertData{}
 	err := c.BindJSON(&ad)
 	if err != nil {
