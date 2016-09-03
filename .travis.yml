@@ -26,4 +26,4 @@ deploy:
     tags: true
 matrix:
   allow_failures:
-- go: tip
+    - go: tip
