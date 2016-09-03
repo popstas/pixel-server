@@ -8,6 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/popstas/pixel-server/app/pixel"
+	"net/url"
+	"strings"
 )
 
 func getServer() Server{
@@ -38,4 +40,31 @@ func TestKapacitor(t *testing.T) {
 
 	response = sendKapacitorRequestFromFile("fixtures/kapacitor_ok.json", r)
 	log.Printf("Response: %v", response)
+}
+
+func TestStatus(t *testing.T) {
+	response := httptest.NewRecorder()
+	s := getServer()
+	r := s.GetEngine()
+
+	form := url.Values{}
+	form.Add("value", "100")
+	form.Add("message", "text\\second line")
+	form.Add("blink", "0")
+	form.Add("brightness", "100")
+
+	request := httptest.NewRequest("POST", "/status", strings.NewReader(form.Encode()))
+	request.PostForm = form
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	r.ServeHTTP(response, request)
+
+	form = url.Values{}
+	form.Add("value", "100")
+	form.Add("message", "text\\second line")
+	form.Add("blink", "0")
+
+	request = httptest.NewRequest("POST", "/status", strings.NewReader(form.Encode()))
+	request.PostForm = form
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	r.ServeHTTP(response, request)
 }
