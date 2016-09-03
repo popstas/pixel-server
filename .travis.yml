@@ -6,8 +6,16 @@ env:
 before_install:
   - go get github.com/mitchellh/gox
   - go get github.com/tcnksm/ghr
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/modocache/gover
+  - go get github.com/mattn/goveralls
 script:
-  - go test -v $(go list -e ./... | grep -v vendor)
+  #- go test -v $(go list -e ./... | grep -v vendor)
+  - go test -coverprofile=kapacitor.coverprofile ./app/kapacitor
+  - go test -coverprofile=pixel.coverprofile ./app/pixel
+  - go test -coverprofile=rest.coverprofile ./app/rest
+  - gover
+  - goveralls -coverprofile=gover.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
 after_success:
   - gox -output "dist/{{.OS}}_{{.Arch}}_{{.Dir}}" -arch="amd64" -os="windows linux darwin" github.com/popstas/pixel-server/app
 deploy:

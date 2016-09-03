@@ -77,9 +77,7 @@ func (p *SerialPixel) SetState(pd PixelData){
 	}
 
 	cmds := p.BuildSetStateCommands(pd)
-	if !p.Testing{
-		p.ExecCommands(cmds)
-	}
+	p.ExecCommands(cmds)
 
 	log.Printf("Pixel.SetState: %v\n", pd)
 
@@ -155,13 +153,13 @@ func (p SerialPixel) BuildSetStateCommands (pd PixelData) ([]StateCommand){
 
 func (p SerialPixel) ExecCommands(cmds []StateCommand){
 	for _, c := range cmds{
-		if c.PauseBefore > 0{
+		if c.PauseBefore > 0 && !p.Testing{
 			time.Sleep(time.Millisecond * time.Duration(c.PauseBefore))
 		}
 
 		p.sendSerial(c.Pd)
 
-		if c.PauseAfter > 0{
+		if c.PauseAfter > 0 && !p.Testing{
 			time.Sleep(time.Millisecond * time.Duration(c.PauseAfter))
 		}
 	}
