@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 BUG FIXES:
+  * pixel state not saved from /kapacitor signals
 
 ## v0.2.1 (31.08.2016)
 
