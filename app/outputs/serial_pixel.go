@@ -1,4 +1,4 @@
-package pixel
+package outputs
 
 import (
 	"time"
@@ -9,12 +9,8 @@ import (
 
 	"github.com/tarm/serial"
 	"io"
+	"errors"
 )
-
-type Pixel interface {
-	SetState(pd PixelData)
-	GetState() (pd PixelData)
-}
 
 type SerialPixel struct{
 	sync.Mutex
@@ -25,41 +21,24 @@ type SerialPixel struct{
 	Testing       bool
 }
 
-type PixelData struct {
-	Value      int
-	Message    string
-	Blink      int
-	Brightness int
-}
 
-type StateCommand struct {
-	Pd          PixelData
-	PauseBefore int
-	PauseAfter  int
-}
-
-type NullWriter struct {
-	LastSerialMessage []byte
-}
-
-func (w NullWriter) Write (b []byte) (int, error){
-	w.LastSerialMessage = b
-	log.Printf("Write bytes: %s", b)
-	return 0, nil
-}
-
-func (p *SerialPixel) Connect(){
-	p.lastPixelData = PixelData{ -1, "", 0, 100 }
+func CreateSerialPixel(portName string, portSpeed int) (err error, p *SerialPixel) {
+	p = &SerialPixel{
+		lastPixelData: PixelData{ -1, "", 0, 100 },
+		PortName: portName,
+		PortSpeed: portSpeed,
+	}
 
 	c := &serial.Config{Name: p.PortName, Baud: p.PortSpeed}
 	s, err := serial.OpenPort(c)
 	if err != nil {
-		log.Fatalf("Could not open port %s, %s", c.Name, err)
+		return errors.New(fmt.Sprintf("Could not open port %s, %s", c.Name, err)), p
 	}
 	p.Serial = s
 
 	// port not opened before 1500 milliseconds pause
 	time.Sleep(1500 * time.Millisecond)
+	return nil, p
 }
 
 func (p SerialPixel) GetState() PixelData{
@@ -68,6 +47,7 @@ func (p SerialPixel) GetState() PixelData{
 
 func (p *SerialPixel) SetState(pd PixelData){
 	p.Lock()
+	log.Printf("[Pixel] Set state: %v\n", pd)
 
 	switch pd.Blink {
 	case 1:
@@ -78,9 +58,6 @@ func (p *SerialPixel) SetState(pd PixelData){
 
 	cmds := p.BuildSetStateCommands(pd)
 	p.ExecCommands(cmds)
-
-	log.Printf("Pixel.SetState: %v\n", pd)
-
 	p.lastPixelData = pd
 
 	// if success value, turn off led

@@ -7,14 +7,14 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/popstas/pixel-server/app/pixel"
+	"github.com/popstas/pixel-server/app/outputs"
 	"net/url"
 	"strings"
 )
 
 func getServer() Server{
-	p := pixel.SerialPixel{Serial: pixel.NullWriter{}, Testing: true}
-	s := Server{Pixel: p}
+	p := &outputs.SerialPixel{Serial: outputs.NullWriter{}, Testing: true}
+	s := Server{Pixels: []outputs.Pixel{p}}
 	return s
 }
 

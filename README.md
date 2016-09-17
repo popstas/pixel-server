@@ -1,7 +1,8 @@
 [![Build Status](https://travis-ci.org/popstas/pixel-server.svg?branch=travis-release)](https://travis-ci.org/popstas/pixel-server)
 [![Coverage Status](https://coveralls.io/repos/github/popstas/pixel-server/badge.svg?branch=master)](https://coveralls.io/github/popstas/pixel-server?branch=master)
 
-Server for send signals to [arduino pixel_meter](https://github.com/popstas/arduino-pixel-meter).
+Server for send signals to [arduino pixel_meter](https://github.com/popstas/arduino-pixel-meter)
+or [AnyBar](https://github.com/tonsky/AnyBar).
 
 ![pixel](img/pixel.jpg)
 
@@ -27,6 +28,7 @@ pixel-server \
 --web-port=8080 \
 --serial-port=COM3 \
 --serial-speed=9600
+--anybar-port=1738
 ```
 
 ### Environment variables
@@ -35,6 +37,7 @@ PIXEL_SERVER_SERIAL_PORT=COM3 \
 PIXEL_SERVER_SERIAL_SPEED=9600 \
 PIXEL_SERVER_WEB_HOST= \
 PIXEL_SERVER_WEB_PORT=8080 \
+PIXEL_SERVER_ANYBAR_PORT=1738 \
 pixel-server
 ```
 
@@ -50,6 +53,11 @@ Command-line parameters has priority over environment variables.
    1 for blink 3 times and back to previous state,  
    2 for persistent blinking
 - `brightness` - led brightness, 0 to 100, default 100
+
+Examples:
+```
+http -f POST http://localhost:8080/status value=50
+```
 
 ## Behaviour
 If status changes from red to green, will be used smooth color change.

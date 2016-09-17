@@ -12,7 +12,7 @@ before_install:
 script:
   #- go test -v $(go list -e ./... | grep -v vendor)
   - go test -coverprofile=kapacitor.coverprofile ./app/kapacitor
-  - go test -coverprofile=pixel.coverprofile ./app/pixel
+  - go test -coverprofile=outputs.coverprofile ./app/outputs
   - go test -coverprofile=rest.coverprofile ./app/rest
   - gover
   - goveralls -coverprofile=gover.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN

@@ -7,13 +7,13 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/popstas/pixel-server/app/pixel"
+	"github.com/popstas/pixel-server/app/outputs"
 	"github.com/popstas/pixel-server/app/kapacitor"
 )
 
 type Server struct {
 	HostPort string
-	Pixel    pixel.SerialPixel
+	Pixels    []outputs.Pixel
 }
 
 func (s Server) GetEngine() *gin.Engine {
@@ -29,15 +29,21 @@ func (s *Server) Run() {
 	gin.SetMode(gin.ReleaseMode)
 	router := s.GetEngine()
 
-	s.Pixel.SetState(pixel.PixelData{ 100, fmt.Sprintf("server started\\%s", s.HostPort), 1, 20 })
+	s.setState(outputs.PixelData{ 100, fmt.Sprintf("server started\\%s", s.HostPort), 1, 20 })
 	time.Sleep(2000 * time.Millisecond)
-	s.Pixel.SetState(pixel.PixelData{ -1, "", 0, 100 })
+	s.setState(outputs.PixelData{ -1, "", 0, 100 })
 
 	log.Fatal(router.Run(s.HostPort))
 }
 
+func (s Server) setState (pd outputs.PixelData){
+	for _, pixel := range s.Pixels {
+		go pixel.SetState(pd)
+	}
+}
+
 func (s *Server) statusHandler(c *gin.Context) {
-	var pd pixel.PixelData
+	var pd outputs.PixelData
 	var err error
 
 	pd.Value, _ = strconv.Atoi(c.PostForm("value"))
@@ -48,7 +54,7 @@ func (s *Server) statusHandler(c *gin.Context) {
 		pd.Brightness = 100
 	}
 
-	go s.Pixel.SetState(pd)
+	s.setState(pd)
 }
 
 func (s *Server) kapacitorHandler(c *gin.Context) {
@@ -58,7 +64,7 @@ func (s *Server) kapacitorHandler(c *gin.Context) {
 		log.Fatalf("Could not decode KapacitorAlertData, %s", err)
 	}
 
-	var pd pixel.PixelData
+	var pd outputs.PixelData
 	pd.Brightness = 100
 
 	switch ad.Level {
@@ -77,5 +83,5 @@ func (s *Server) kapacitorHandler(c *gin.Context) {
 	data := ad.Data.Series[0]
 	pd.Message = fmt.Sprintf("%s\\%s: %v", data.Tags.Host, data.Name, data.Values[0][1]) // data.Values[1]
 
-	go s.Pixel.SetState(pd)
+	s.setState(pd)
 }
