@@ -12,8 +12,9 @@ import (
 )
 
 type Server struct {
-	HostPort string
-	Pixels    []outputs.Pixel
+	HostPort          string
+	Pixels            []outputs.Pixel
+	DefaultBrightness int
 }
 
 func (s Server) GetEngine() *gin.Engine {
@@ -29,7 +30,7 @@ func (s *Server) Run() {
 	gin.SetMode(gin.ReleaseMode)
 	router := s.GetEngine()
 
-	s.setState(outputs.PixelData{ 100, fmt.Sprintf("server started\\%s", s.HostPort), 1, 20 })
+	s.setState(outputs.PixelData{ 100, fmt.Sprintf("server started\\%s", s.HostPort), 1, s.DefaultBrightness })
 	time.Sleep(2000 * time.Millisecond)
 	s.setState(outputs.PixelData{ -1, "", 0, 100 })
 
@@ -51,7 +52,7 @@ func (s *Server) statusHandler(c *gin.Context) {
 	pd.Blink, _ = strconv.Atoi(c.PostForm("blink"))
 	pd.Brightness, err = strconv.Atoi(c.PostForm("brightness"))
 	if err != nil{
-		pd.Brightness = 100
+		pd.Brightness = s.DefaultBrightness
 	}
 
 	s.setState(pd)
@@ -65,7 +66,7 @@ func (s *Server) kapacitorHandler(c *gin.Context) {
 	}
 
 	var pd outputs.PixelData
-	pd.Brightness = 100
+	pd.Brightness = s.DefaultBrightness
 
 	switch ad.Level {
 	case kapacitor.OKAlert:

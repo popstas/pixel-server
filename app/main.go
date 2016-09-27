@@ -17,6 +17,7 @@ var opts struct {
 	AnyBarPort  int    `long:"anybar-port" env:"PIXEL_SERVER_ANYBAR_PORT" description:"anybar port" default:"1738"`
 	WebHost     string `long:"web-host" env:"PIXEL_SERVER_WEB_HOST" description:"hostname for bind server" default:""`
 	WebPort     int    `long:"web-port" env:"PIXEL_SERVER_WEB_PORT" description:"port for bind server" default:"8246"`
+	Brightness  int    `long:"brightness" env:"PIXEL_SERVER_BRIGHTNESS" description:"default pixel's brightness" default:"100"`
 }
 
 func main() {
@@ -47,6 +48,7 @@ func main() {
 	server := rest.Server{
 		HostPort: fmt.Sprintf("%s:%d", opts.WebHost, opts.WebPort),
 		Pixels: pixels,
+		DefaultBrightness: opts.Brightness,
 	}
 
 	server.Run()

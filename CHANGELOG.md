@@ -5,6 +5,7 @@ BREAKING CHANGES:
 
 FEATURES:
   * AnyBar support for MacOS
+  * add default pixel brightness to settings
 
 IMPROVEMENTS:
 
