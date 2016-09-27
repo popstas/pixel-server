@@ -1,6 +1,10 @@
 ## NEXT VERSION
 
+BREAKING CHANGES:
+  * default port changed from 8080 to 8246
+
 FEATURES:
+  * AnyBar support for MacOS
 
 IMPROVEMENTS:
 

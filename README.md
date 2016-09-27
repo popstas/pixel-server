@@ -7,7 +7,7 @@ or [AnyBar](https://github.com/tonsky/AnyBar).
 ![pixel](img/pixel.jpg)
 
 # Usage
-- Start server, it will default listen at *:8080
+- Start server, it will default listen at *:8246
 - Send POST request to `/status` like this:
 ```
 http -f POST http://localhost:8080/status value=50 message='first string\\second string' blink=2
@@ -16,7 +16,7 @@ http -f POST http://localhost:8080/status value=50 message='first string\\second
 ```
 data
     |alert()
-        .post('http://localhost:8080/kapacitor')
+        .post('http://localhost:8246/kapacitor')
 ```
 
 # Configure server
@@ -25,10 +25,11 @@ data
 ```
 pixel-server \
 --web-host="" \
---web-port=8080 \
+--web-port=8246 \
 --serial-port=COM3 \
 --serial-speed=9600
 --anybar-port=1738
+--brightness=100
 ```
 
 ### Environment variables
@@ -36,8 +37,9 @@ pixel-server \
 PIXEL_SERVER_SERIAL_PORT=COM3 \
 PIXEL_SERVER_SERIAL_SPEED=9600 \
 PIXEL_SERVER_WEB_HOST= \
-PIXEL_SERVER_WEB_PORT=8080 \
+PIXEL_SERVER_WEB_PORT=8246 \
 PIXEL_SERVER_ANYBAR_PORT=1738 \
+PIXEL_SERVER_BRIGHTNESS=100 \
 pixel-server
 ```
 
@@ -56,7 +58,7 @@ Command-line parameters has priority over environment variables.
 
 Examples:
 ```
-http -f POST http://localhost:8080/status value=50
+http -f POST http://localhost:8246/status value=50
 ```
 
 ## Behaviour

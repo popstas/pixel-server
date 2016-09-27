@@ -16,7 +16,7 @@ var opts struct {
 	SerialSpeed int    `long:"serial-speed" env:"PIXEL_SERVER_SERIAL_SPEED" description:"serial port speed" default:"9600"`
 	AnyBarPort  int    `long:"anybar-port" env:"PIXEL_SERVER_ANYBAR_PORT" description:"anybar port" default:"1738"`
 	WebHost     string `long:"web-host" env:"PIXEL_SERVER_WEB_HOST" description:"hostname for bind server" default:""`
-	WebPort     int    `long:"web-port" env:"PIXEL_SERVER_WEB_PORT" description:"port for bind server" default:"8080"`
+	WebPort     int    `long:"web-port" env:"PIXEL_SERVER_WEB_PORT" description:"port for bind server" default:"8246"`
 }
 
 func main() {
