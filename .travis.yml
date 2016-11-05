@@ -17,7 +17,7 @@ script:
   - gover
   - goveralls -coverprofile=gover.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
 after_success:
-  - gox -output "dist/{{.OS}}_{{.Arch}}_{{.Dir}}" -arch="amd64" -os="windows linux darwin" github.com/popstas/pixel-server/app
+  - gox -output "dist/{{.OS}}_{{.Arch}}_{{.Dir}}" -arch="amd64" -os="windows linux darwin" -osarch="linux/arm" github.com/popstas/pixel-server/app
 deploy:
   provider: script
   script: ghr --username popstas --token $GITHUB_TOKEN --replace --debug $(git tag -l --contains HEAD) dist/
